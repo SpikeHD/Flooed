@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Flooed Bridge",
+  "description": "",
+  "version": "1.0",
+  "background": {
+    "service_worker": "js/background.js"
+  },
+  "permissions": ["activeTab", "scripting"]
+}

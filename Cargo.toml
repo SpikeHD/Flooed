@@ -1,0 +1,9 @@
+[package]
+name = "flooed"
+version = "0.0.1"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+webui-rs = { git = "https://github.com/SpikeHD/rust-webui" }
