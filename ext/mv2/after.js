@@ -1,4 +1,26 @@
 ;(async () => {
+  // Recreate localStorage
+  scriptTagExec(`
+  const iframe = document.createElement('iframe')
+
+  // Wait for document.head to exist, then append the iframe
+  const interval = setInterval(() => {
+    if (!document.head || window.localStorage) return
+
+    document.head.append(iframe)
+    const pd = Object.getOwnPropertyDescriptor(iframe.contentWindow, 'localStorage')
+    iframe.remove()
+
+    if (!pd) return
+
+    Object.defineProperty(window, 'localStorage', pd)
+
+    console.log('[Create LocalStorage] Done!')
+
+    clearInterval(interval)
+  }, 50)
+  `)
+
   const webuiScript = await fetch("http://localhost:10100/webui.js")
 
   // WebUI goes first
@@ -43,7 +65,7 @@ async function ensurePlugins() {
         scriptTagExec(`(${fn.toString()})(shelter)`)
 
         // Run plugin.onLoad if it exists
-        plugin.onLoad?.()
+        //plugin.onLoad?.()
       } catch (e) {
         console.error(`[Ensure Plugins] Failed to load plugin ${name}: `, e)
       }

@@ -1,5 +1,5 @@
 <h1 align="center">
- <img height="100px" src="https://raw.githubusercontent.com/SpikeHD/flooed/main/src-tauri/icons/icon.png" />
+ <img height="100px" src="https://raw.githubusercontent.com/SpikeHD/flooed/main/assets/icon.png" />
  <br />
  Flooed
 </h1>
