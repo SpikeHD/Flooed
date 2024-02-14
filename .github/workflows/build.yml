@@ -7,12 +7,16 @@ on:
       - 'Cargo.lock'
       - 'Cargo.toml'
       - 'src/**'
+      - 'ext/**'
+      - 'build.rs'
   pull_request:
     paths:
       - '.github/workflows/build.yml'
       - 'Cargo.lock'
       - 'Cargo.toml'
       - 'src/**'
+      - 'ext/**'
+      - 'build.rs'
 
 env:
   CARGO_INCREMENTAL: 0
