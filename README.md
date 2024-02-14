@@ -5,7 +5,6 @@
 </h1>
 <div align="center">
  <img src="https://img.shields.io/github/actions/workflow/status/SpikeHD/Flooed/build.yml" />
- <img src="https://img.shields.io/github/package-json/v/SpikeHD/Flooed" />
  <img src="https://img.shields.io/github/repo-size/SpikeHD/Flooed" />
 </div>
 <div align="center">
