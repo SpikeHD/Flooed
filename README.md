@@ -53,3 +53,7 @@ Download a release for your platform from the [releases page](https://github.com
 # Features
 
 * Kinda nothing yet
+
+# Contributing
+
+PRs, issues, etc. are all welcome!
