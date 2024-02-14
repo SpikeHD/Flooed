@@ -62,7 +62,7 @@ jobs:
 
       # Move the binary to the root of the project
       - name: Move Binary
-        run: mv target/release/backend .
+        run: mv target/release/flooed.exe flooed.exe
 
       # Zip up the binary as well as the ext/ folder
       - name: Compress
