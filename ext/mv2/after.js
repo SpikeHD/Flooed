@@ -26,17 +26,43 @@
   // WebUI goes first
   scriptTagExec(await webuiScript.text())
 
+  dispatchEvent(new Event('load'));
+
   // Then we define window.Flooed
-  scriptTagExec(`window.Flooed = { }`)
+  scriptTagExec(`
+  ${FlooedApi.toString()}
+
+  window.Flooed = new FlooedApi()
+  `)
 
   await ensurePlugins();
 })()
+
+class FlooedApi {
+  ws = null;
+  shouldShowUnreadBadge = false;
+  util = {
+    cssSanitize: (css) => {},
+    fetchImage: async function (url) {
+      // Flooed uses a web extension that removes CORs, so it's fine
+      return (await fetch(url)).blob();
+    },
+    applyNotificationCount: () => {}
+  }
+
+  constructor() {
+    this.ws = new WebSocket("ws://localhost:10102");
+  }
+
+  async invoke(command, data) {
+    this.ws.send(JSON.stringify({ command, data }));
+  }
+}
 
 async function ensurePlugins() {
   const requiredPlugins = {
     'Dorion Settings':
       'https://spikehd.github.io/shelter-plugins/dorion-settings/',
-    'Always Trust': 'https://spikehd.github.io/shelter-plugins/always-trust/',
     'Dorion Notifications':
       'https://spikehd.github.io/shelter-plugins/dorion-notifications/',
     'Dorion Streamer Mode':
@@ -45,8 +71,6 @@ async function ensurePlugins() {
       'https://spikehd.github.io/shelter-plugins/dorion-updater/',
     'Dorion PTT': 'https://spikehd.github.io/shelter-plugins/dorion-ptt/',
     'Dorion Tray': 'https://spikehd.github.io/shelter-plugins/dorion-tray/',
-    'Dorion Fullscreen':
-      'https://spikehd.github.io/shelter-plugins/dorion-fullscreen/',
   }
 
   const promises = [

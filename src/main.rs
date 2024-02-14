@@ -8,6 +8,7 @@ mod util;
 
 use config::get_config;
 use util::logger;
+use util::ws::WsConnector;
 use webui_rs::webui::{wait, Window, WebUIBrowser};
 
 fn main() {
@@ -36,6 +37,16 @@ fn main() {
   // This should load our extension
   win.add_extension(ext.to_str().unwrap().to_string());
 
+  // Start the websocket connector
+  let mut ws = WsConnector::new();
+
+  ws.register_command("test_command", |_| {
+    println!("Websocket test command successful!");
+  });
+
+  ws.start();
+
+  // Start the browser
   win.show_browser(client, WebUIBrowser::ChromiumBased);
 
   wait();

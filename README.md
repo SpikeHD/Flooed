@@ -1,5 +1,5 @@
 <h1 align="center">
- <img height="100px" src="https://raw.githubusercontent.com/SpikeHD/flooed/main/assets/icon.png" />
+ <img height="100px" src="https://raw.githubusercontent.com/SpikeHD/Flooed/main/assets/icon.png" />
  <br />
  Flooed
 </h1>
@@ -20,3 +20,32 @@
   <br />
   https://discord.gg/agQ9mRdHMZ
 </div>
+
+# Table of Contents
+
+* [Installation](#installation)
+* [Building](#building)
+  * [Prerequisites](#prerequisites)
+  * [Steps](#steps)
+* [Features](#features)
+
+# Installation
+
+Download a release for your platform from the [releases page](https://github.com/SpikeHD/Flooed/releases)!
+
+# Building
+
+## Prerequisites
+
+1. [Rust and Cargo](https://www.rust-lang.org/tools/install)
+2. [Static WebUI binary](https://github.com/webui-dev/webui/actions/workflows/ci.yml) (if on Windows, use the MSVC build)
+
+## Steps
+
+1. Clone the repository
+2. Place `webui-2-static` in the root of the repository
+3. Run `cargo build --release`
+
+# Features
+
+* Kinda nothing yet
