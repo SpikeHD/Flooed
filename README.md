@@ -19,6 +19,10 @@
   Flooed is a lightweight, themeable, and plugin-able Discord client that uses whatever browser you already use!
   <br />
   https://discord.gg/agQ9mRdHMZ
+
+  <br />
+  <br />
+  <sup>Not into Flooed? Try <a href="https://github.com/SpikeHD/Dorion">Dorion</a> instead!</sup>
 </div>
 
 # Table of Contents
