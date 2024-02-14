@@ -11,6 +11,9 @@ use util::logger;
 use util::ws::WsConnector;
 use webui_rs::webui::{wait, Window, WebUIBrowser};
 
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+const NAME : &str = env!("CARGO_PKG_NAME");
+
 fn main() {
   logger::init(true);
   let config = get_config();
@@ -40,9 +43,7 @@ fn main() {
   // Start the websocket connector
   let mut ws = WsConnector::new();
 
-  ws.register_command("test_command", |_| {
-    println!("Websocket test command successful!");
-  });
+  register_commands(&mut ws);
 
   ws.start();
 
@@ -50,4 +51,14 @@ fn main() {
   win.show_browser(client, WebUIBrowser::ChromiumBased);
 
   wait();
+}
+
+fn register_commands(ws: &mut WsConnector) {
+  ws.register_command("get_version", |_| {
+    return VERSION.to_string();
+  });
+
+  ws.register_command("read_config_file", |_| {
+    return config::read_config_file();
+  });
 }

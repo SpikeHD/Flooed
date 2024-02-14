@@ -33,6 +33,12 @@
   ${FlooedApi.toString()}
 
   window.Flooed = new FlooedApi()
+
+  ;(async () => {
+    console.log('[Flooed] Fetching version...')
+    window.Flooed.version = await Flooed.invoke('get_version')
+    console.log('[Flooed] Version: ', window.Flooed.version)
+  })()
   `)
 
   await ensurePlugins();
@@ -40,9 +46,25 @@
 
 class FlooedApi {
   ws = null;
+  version = null;
+  commandsWaiting = {};
+  commandIdx = 0;
   shouldShowUnreadBadge = false;
+
   util = {
-    cssSanitize: (css) => {},
+    cssSanitize: (css) => {
+      const style = document.createElement('style')
+      style.innerHTML = css
+    
+      document.head.appendChild(style)
+    
+      if (!style.sheet) return
+    
+      const result = Array.from(style.sheet.cssRules).map(rule => rule.cssText || '').join('\n')
+    
+      document.head.removeChild(style)
+      return result
+    },
     fetchImage: async function (url) {
       // Flooed uses a web extension that removes CORs, so it's fine
       return (await fetch(url)).blob();
@@ -52,10 +74,37 @@ class FlooedApi {
 
   constructor() {
     this.ws = new WebSocket("ws://localhost:10102");
+
+    this.ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log('[Flooed] Received message: ', data)
+
+      if (data.command === 'response') {
+        if (this.commandsWaiting[data.id]) {
+          this.commandsWaiting[data.id](data.data);
+          delete this.commandsWaiting[data.id];
+        }
+      }
+    }
   }
 
   async invoke(command, data) {
-    this.ws.send(JSON.stringify({ command, data }));
+    // Ensure we wait for WS to be open
+    while (this.ws.readyState !== WebSocket.OPEN) {
+      console.log('[Flooed] Waiting for WS to be open...')
+      await new Promise(setTimeout);
+    }
+
+    const idx = this.commandIdx++
+
+    console.log('[Flooed] Sending command: ', command)
+    
+    this.ws.send(JSON.stringify({ command, data, id: idx  }));
+
+    // Wait for response
+    return await new Promise((resolve) => {
+      this.commandsWaiting[idx] = resolve;
+    });
   }
 }
 
@@ -87,9 +136,6 @@ async function ensurePlugins() {
         const fn = eval(pluginStr)
         
         scriptTagExec(`(${fn.toString()})(shelter)`)
-
-        // Run plugin.onLoad if it exists
-        //plugin.onLoad?.()
       } catch (e) {
         console.error(`[Ensure Plugins] Failed to load plugin ${name}: `, e)
       }

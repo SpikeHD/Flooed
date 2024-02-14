@@ -6,12 +6,13 @@ use serde_json::Value;
 #[derive(Serialize, Deserialize)]
 struct Command {
   command: String,
-  data: Option<Value>
+  data: Option<Value>,
+  id: u64
 }
 
 pub struct WsConnector {
   ws: Arc<simple_websockets::EventHub>,
-  commands: HashMap<String, fn(Option<Value>)>
+  commands: HashMap<String, fn(Option<Value>) -> String>
 }
 
 impl WsConnector {
@@ -67,7 +68,16 @@ impl WsConnector {
 
                 if commands.contains_key(&command.command) {
                   let callback = commands.get(&command.command).unwrap();
-                  callback(command.data.clone());
+                  let result = callback(command.data.clone());
+                  let resp_command = Command {
+                    command: "response".to_string(),
+                    data: Some(serde_json::to_value(result).unwrap()),
+                    id: command.id
+                  };
+
+                  responder.send(Message::Text(
+                    serde_json::to_string(&resp_command).unwrap()
+                  ));
                 } else {
                   println!("Command not found: {}", command.command);
                   responder.send(Message::Text("Command not found".to_string()));
@@ -84,7 +94,7 @@ impl WsConnector {
     });
   }
   
-  pub fn register_command(&mut self, command: &str, callback: fn(Option<Value>)) {
+  pub fn register_command(&mut self, command: &str, callback: fn(Option<Value>) -> String) {
     self.commands.insert(command.to_string(), callback);
   }
 }
