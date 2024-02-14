@@ -57,6 +57,8 @@ jobs:
 
       - name: Build
         run: cargo build --release
+        env:
+          RUSTFLAGS: -Awarnings
 
       # Move the binary to the root of the project
       - name: Move Binary
