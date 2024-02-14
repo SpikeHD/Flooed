@@ -3,13 +3,13 @@ name: Check backend
 on:
   push:
     paths:
-      - '.github/workflows/backend.yml'
+      - '.github/workflows/lint.yml'
       - 'Cargo.lock'
       - 'Cargo.toml'
       - 'src/**'
   pull_request:
     paths:
-      - '.github/workflows/backend.yml'
+      - '.github/workflows/lint.yml'
       - 'Cargo.lock'
       - 'Cargo.toml'
       - 'src/**'
