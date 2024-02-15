@@ -96,7 +96,7 @@ fn show_notification(summary: &str, body: &str) {
   match n {
     Ok(_) => {}
     Err(e) => {
-      eprintln!("Failed to show notification: {}", e);
+      logger::log(format!("Failed to show notification: {}", e));
     }
   }
 }
