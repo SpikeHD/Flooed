@@ -1,7 +1,5 @@
 use std::{fs, path::PathBuf};
 
-use webui_rs::webui::WebUIBrowser;
-
 use crate::util::logger::log;
 
 pub fn get_config_dir() -> PathBuf {
@@ -146,7 +144,10 @@ pub fn get_profile_dir(browser: usize) -> PathBuf {
   #[cfg(not(target_os = "windows"))]
   let appdata = dirs::config_dir().unwrap_or_default();
 
-  appdata.join("flooed").join("profile").join(format!("{}", browser))
+  appdata
+    .join("flooed")
+    .join("profile")
+    .join(format!("{}", browser))
 }
 
 pub fn custom_detectables_path() -> PathBuf {

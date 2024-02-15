@@ -10,8 +10,8 @@ mod util;
 use std::fs;
 
 use config::get_config;
-use util::{logger, paths::get_profile_dir};
 use util::ws::WsConnector;
+use util::{logger, paths::get_profile_dir};
 //use webui_rs::webui::bindgen::webui_get_best_browser;
 use webui_rs::webui::{bindgen::webui_set_profile, wait, WebUIBrowser, Window};
 
@@ -26,7 +26,7 @@ fn main() {
 
   // Ensure profile dir exists
   let profile_dir = get_profile_dir(browser.to_usize());
-    
+
   if fs::metadata(&profile_dir).is_err() {
     logger::log(format!("Creating profile dir: {:?}", profile_dir));
     fs::create_dir_all(&profile_dir).expect("Failed to create profile dir");
@@ -37,8 +37,11 @@ fn main() {
   // Set the profile dir
   unsafe {
     let path_cstr = std::ffi::CString::new(
-      profile_dir.to_str().expect("Failed to convert profile dir to string"),
-    ).expect("Failed to convert profile dir to CString");
+      profile_dir
+        .to_str()
+        .expect("Failed to convert profile dir to string"),
+    )
+    .expect("Failed to convert profile dir to CString");
 
     webui_set_profile(
       win.id,
