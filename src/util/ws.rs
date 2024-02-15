@@ -12,9 +12,11 @@ struct Command {
   id: u64,
 }
 
+type CallbackFn = fn(Option<Value>) -> Option<String>;
+
 pub struct WsConnector {
   ws: Arc<simple_websockets::EventHub>,
-  commands: HashMap<String, fn(Option<Value>) -> String>,
+  commands: HashMap<String, CallbackFn>,
 }
 
 impl WsConnector {
@@ -97,7 +99,7 @@ impl WsConnector {
     });
   }
 
-  pub fn register_command(&mut self, command: &str, callback: fn(Option<Value>) -> String) {
+  pub fn register_command(&mut self, command: &str, callback: CallbackFn) {
     self.commands.insert(command.to_string(), callback);
   }
 }

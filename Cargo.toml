@@ -11,7 +11,9 @@ strip = "debuginfo"
 chrono = "0.4.34"
 dirs = "5.0.1"
 notify-rust = { version = "4.10.0", no-default-features = true }
+regex = "1.10.3"
 serde = { version = "1.0.196", features = [ "derive" ] }
 serde_json = "1.0.113"
 simple-websockets = "0.1.6"
+sysinfo = "0.30.5"
 webui-rs = { git = "https://github.com/SpikeHD/rust-webui", branch = "ext" }

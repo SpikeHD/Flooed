@@ -85,7 +85,7 @@ pub fn get_theme_dir() -> std::path::PathBuf {
   let current_exe = std::env::current_exe().unwrap_or_default();
   let local_theme_dir = current_exe.parent().unwrap().join("themes");
 
-  if fs::metadata(&local_theme_dir).is_ok() {
+  if config_is_local() {
     return local_theme_dir;
   }
 
@@ -131,9 +131,8 @@ pub fn get_theme_dir() -> std::path::PathBuf {
 
 pub fn get_profile_dir(browser: usize) -> PathBuf {
   let current_exe = std::env::current_exe().unwrap_or_default();
-  let local_config_dir = current_exe.parent().unwrap().join("config.json");
 
-  if fs::metadata(local_config_dir).is_ok() {
+  if config_is_local() {
     // This is a portable install, so we can use the local injection dir
     return current_exe.parent().unwrap().join("profile");
   }

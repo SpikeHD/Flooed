@@ -5,11 +5,15 @@
 
 mod compat;
 mod config;
+mod extra;
 mod util;
 
 use std::fs;
 
 use config::get_config;
+use extra::register_plugin_commands;
+use util::process::process_already_exists;
+use util::register_path_commands;
 use util::ws::WsConnector;
 use util::{logger, paths::get_profile_dir};
 //use webui_rs::webui::bindgen::webui_get_best_browser;
@@ -19,6 +23,12 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 fn main() {
   logger::init(true);
+
+  if process_already_exists() {
+    // TODO We'll do the deep link thing later
+    std::process::exit(0);
+  }
+
   let config = get_config();
   let mut win = Window::new();
   let browser = WebUIBrowser::ChromiumBased;
@@ -105,6 +115,17 @@ fn show_notification(summary: &str, body: &str) {
 }
 
 fn register_commands(ws: &mut WsConnector) {
-  ws.register_command("get_version", |_| VERSION.to_string());
-  ws.register_command("read_config_file", |_| config::read_config_file());
+  ws.register_command("get_version", |_| Some(VERSION.to_string()));
+  ws.register_command("read_config_file", |_| Some(config::read_config_file()));
+  ws.register_command("write_config_file", |data| {
+    if let Some(data) = data {
+      config::write_config_file(data.to_string());
+      return Some(String::from("true"));
+    }
+
+    Some(String::from("false"))
+  });
+
+  register_plugin_commands(ws);
+  register_path_commands(ws);
 }
