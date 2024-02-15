@@ -12,7 +12,6 @@ use util::ws::WsConnector;
 use webui_rs::webui::{wait, WebUIBrowser, Window};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
-const NAME: &str = env!("CARGO_PKG_NAME");
 
 fn main() {
   logger::init(true);
@@ -48,12 +47,7 @@ fn main() {
   ws.start();
 
   // Start the browser
-  if !win.show_browser(client, WebUIBrowser::ChromiumBased) {
-    // If no chromium based browser is found, just show with whatever is available
-    win.show(client);
-
-    show_notification("Flooed", "No chromium based browser found, using default browser. Note that you may encounter limited functionality.")
-  }
+  win.show_browser(client, WebUIBrowser::ChromiumBased);
 
   wait();
 }

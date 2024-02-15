@@ -1,48 +1,3 @@
-;(async () => {
-  // Recreate localStorage
-  scriptTagExec(`
-  const iframe = document.createElement('iframe')
-
-  // Wait for document.head to exist, then append the iframe
-  const interval = setInterval(() => {
-    if (!document.head || window.localStorage) return
-
-    document.head.append(iframe)
-    const pd = Object.getOwnPropertyDescriptor(iframe.contentWindow, 'localStorage')
-    iframe.remove()
-
-    if (!pd) return
-
-    Object.defineProperty(window, 'localStorage', pd)
-
-    console.log('[Create LocalStorage] Done!')
-
-    clearInterval(interval)
-  }, 50)
-  `)
-
-  const webuiScript = await fetch("http://localhost:10100/webui.js")
-
-  // WebUI goes first
-  scriptTagExec(await webuiScript.text())
-
-  dispatchEvent(new Event('load'));
-
-  // Then we define window.Flooed
-  scriptTagExec(`
-  ${FlooedApi.toString()}
-
-  window.Flooed = new FlooedApi()
-
-  ;(async () => {
-    console.log('[Flooed] Fetching version...')
-    window.Flooed.version = await Flooed.invoke('get_version')
-    console.log('[Flooed] Version: ', window.Flooed.version)
-  })()
-  `)
-
-  await ensurePlugins();
-})()
 
 class FlooedApi {
   ws = null;
@@ -73,17 +28,21 @@ class FlooedApi {
   }
 
   constructor() {
-    this.ws = new WebSocket("ws://localhost:10102");
+    this.ws = new WebSocket("ws://127.0.0.1:10102");
 
     this.ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log('[Flooed] Received message: ', data)
-
-      if (data.command === 'response') {
-        if (this.commandsWaiting[data.id]) {
-          this.commandsWaiting[data.id](data.data);
-          delete this.commandsWaiting[data.id];
+      try {
+        const data = JSON.parse(event.data);
+        console.log('[Flooed] Received message: ', data)
+  
+        if (data.command === 'response') {
+          if (this.commandsWaiting[data.id]) {
+            this.commandsWaiting[data.id](data.data);
+            delete this.commandsWaiting[data.id];
+          }
         }
+      } catch (e) {
+        console.error('[Flooed] Command failed')
       }
     }
   }
@@ -107,6 +66,47 @@ class FlooedApi {
     });
   }
 }
+
+;(async () => {
+  // Recreate localStorage
+  console.log('[Create LocalStorage] Injecting...')
+  scriptTagExec(`
+  const iframe = document.createElement('iframe')
+
+  // Wait for document.head to exist, then append the iframe
+  const interval = setInterval(() => {
+    if (!document.head || window.localStorage) return
+
+    document.head.append(iframe)
+    const pd = Object.getOwnPropertyDescriptor(iframe.contentWindow, 'localStorage')
+    iframe.remove()
+
+    if (!pd) return
+
+    Object.defineProperty(window, 'localStorage', pd)
+
+    console.log('[Create LocalStorage] Done!')
+
+    clearInterval(interval)
+  }, 50)
+  `)
+
+  console.log('[Flooed] Injecting...')
+  // Then we define window.Flooed
+  scriptTagExec(`
+  ${FlooedApi.toString()}
+
+  window.Flooed = new FlooedApi()
+
+  ;(async () => {
+    console.log('[Flooed] Fetching version...')
+    window.Flooed.version = await Flooed.invoke('get_version')
+    console.log('[Flooed] Version: ', window.Flooed.version)
+  })()
+  `)
+
+  await ensurePlugins();
+})()
 
 async function ensurePlugins() {
   const requiredPlugins = {
