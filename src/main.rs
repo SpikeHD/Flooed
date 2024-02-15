@@ -87,13 +87,18 @@ fn main() {
 }
 
 fn show_notification(summary: &str, body: &str) {
-  notify_rust::Notification::new()
+  let n = notify_rust::Notification::new()
     .summary(summary)
     .body(body)
     .icon("discord")
-    .show()
-    // This can fail, it's not really vital
-    .unwrap_or(())
+    .show();
+
+  match n {
+    Ok(_) => {}
+    Err(e) => {
+      eprintln!("Failed to show notification: {}", e);
+    }
+  }
 }
 
 fn register_commands(ws: &mut WsConnector) {
