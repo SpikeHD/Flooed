@@ -1,5 +1,7 @@
 use std::{fs, path::PathBuf};
 
+use webui_rs::webui::WebUIBrowser;
+
 use crate::util::logger::log;
 
 pub fn get_config_dir() -> PathBuf {
@@ -127,6 +129,24 @@ pub fn get_theme_dir() -> std::path::PathBuf {
   }
 
   theme_dir
+}
+
+pub fn get_profile_dir(browser: usize) -> PathBuf {
+  let current_exe = std::env::current_exe().unwrap_or_default();
+  let local_config_dir = current_exe.parent().unwrap().join("config.json");
+
+  if fs::metadata(local_config_dir).is_ok() {
+    // This is a portable install, so we can use the local injection dir
+    return current_exe.parent().unwrap().join("profile");
+  }
+
+  #[cfg(target_os = "windows")]
+  let appdata = dirs::data_dir().unwrap_or_default();
+
+  #[cfg(not(target_os = "windows"))]
+  let appdata = dirs::config_dir().unwrap_or_default();
+
+  appdata.join("flooed").join("profile").join(format!("{}", browser))
 }
 
 pub fn custom_detectables_path() -> PathBuf {

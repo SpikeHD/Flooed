@@ -1731,7 +1731,7 @@ checksum = "4f186bd2dcf04330886ce82d6f33dd75a7bfcf69ecf5763b89fcde53b6ac9838"
 [[package]]
 name = "webui-rs"
 version = "0.1.0"
-source = "git+https://github.com/SpikeHD/rust-webui?branch=ext#825a6e16c49ab8acf25867d1398c5e0416347140"
+source = "git+https://github.com/SpikeHD/rust-webui?branch=ext#fd56df9362a5481a2a0d2613e6963d2337725ea3"
 dependencies = [
  "lazy_static",
 ]

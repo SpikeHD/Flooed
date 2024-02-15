@@ -1,4 +1,3 @@
-
 class FlooedApi {
   ws = null;
   version = null;
