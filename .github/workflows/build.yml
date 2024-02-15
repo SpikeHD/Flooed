@@ -45,7 +45,7 @@ jobs:
 
       # Download a prebuilt webui static lib based on OS, and rename to libwebui-2-static.a
       - name: Download WebUI
-        if: matrix.platform == 'ubuntu-latest'
+        if: matrix.platform == 'ubuntu-20.04'
         run: |
           curl -L https://github.com/SpikeHD/webui/releases/download/v0.0.0/libwebui-2-static_linux.a -o libwebui-2-static.a
       
