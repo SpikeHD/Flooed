@@ -28,7 +28,7 @@ fn main() {
   let profile_dir = get_profile_dir(browser.to_usize());
     
   if fs::metadata(&profile_dir).is_err() {
-    println!("Creating profile dir: {:?}", profile_dir);
+    logger::log(format!("Creating profile dir: {:?}", profile_dir));
     fs::create_dir_all(&profile_dir).expect("Failed to create profile dir");
   }
 

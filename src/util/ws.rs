@@ -3,6 +3,8 @@ use serde_json::Value;
 use simple_websockets::{self, Event, Message, Responder};
 use std::{collections::HashMap, sync::Arc};
 
+use super::logger;
+
 #[derive(Serialize, Deserialize)]
 struct Command {
   command: String,
@@ -39,17 +41,17 @@ impl WsConnector {
       loop {
         match ws.poll_event() {
           Event::Connect(client_id, responder) => {
-            println!("Flooed frontend connected: {}", client_id);
+            logger::log(format!("Flooed frontend connected: {}", client_id));
 
             // Only insert if there isn't already an active client
             if clients.is_empty() {
               clients.insert(client_id, responder);
             } else {
-              println!("Flooed frontend already connected: {}", client_id);
+              logger::log(format!("Flooed frontend already connected: {}", client_id));
             }
           }
           Event::Disconnect(client_id) => {
-            println!("Flooed frontend disconnected: {}", client_id);
+            logger::log(format!("Flooed frontend disconnected: {}", client_id));
             clients.remove(&client_id);
           }
           Event::Message(client_id, message) => {
@@ -57,13 +59,13 @@ impl WsConnector {
 
             match message {
               Message::Text(text) => {
-                println!("Flooed frontend sent message: {}", text);
+                logger::log(format!("Flooed frontend sent message: {}", text));
 
                 // See if there is an associated command
                 let command: Command = match serde_json::from_str(&text) {
                   Ok(c) => c,
                   Err(e) => {
-                    println!("Error parsing command: {}", e);
+                    logger::log(format!("Error parsing command: {}", e));
                     responder.send(Message::Text("Error parsing command".to_string()));
                     continue;
                   }
@@ -80,12 +82,12 @@ impl WsConnector {
 
                   responder.send(Message::Text(serde_json::to_string(&resp_command).unwrap()));
                 } else {
-                  println!("Command not found: {}", command.command);
+                  logger::log(format!("Command not found: {}", command.command));
                   responder.send(Message::Text("Command not found".to_string()));
                 }
               }
               Message::Binary(data) => {
-                println!("Flooed frontend sent binary data: {:?}", data);
+                logger::log(format!("Flooed frontend sent binary data: {:?}", data));
                 responder.send(Message::Binary(data));
               }
             }

@@ -8,6 +8,7 @@ lto = true
 strip = "debuginfo"
 
 [dependencies]
+chrono = "0.4.34"
 dirs = "5.0.1"
 notify-rust = { version = "4.10.0", no-default-features = true }
 serde = { version = "1.0.196", features = [ "derive" ] }

@@ -19,11 +19,14 @@ pub fn init(with_file: bool) {
 }
 
 pub fn log(s: impl AsRef<str> + Display) {
-  println!("{}", s);
+  let date = chrono::Local::now().format("%Y-%m-%d %H:%M:%S");
+  let msg = format!("[{}] {}", date, s);
+
+  println!("{}", msg);
 
   unsafe {
     if let Some(file) = &mut LOG_FILE {
-      file.write_all(format!("{}\n", s).as_bytes()).unwrap()
+      file.write_all(format!("{}\n", msg).as_bytes()).unwrap()
     }
   }
 }
