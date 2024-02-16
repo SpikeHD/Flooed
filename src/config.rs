@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use miniserde::{Deserialize, Serialize};
 use std::fs;
 
 use crate::util::logger::log;
@@ -89,7 +89,7 @@ pub fn get_config() -> Config {
   let config_str = read_config_file();
   let config_str = config_str.as_str();
 
-  match serde_json::from_str(config_str) {
+  match miniserde::json::from_str(config_str) {
     Ok(config) => config,
     Err(e) => {
       log("Failed to parse config, using default config!");

@@ -1,3 +1,4 @@
+pub mod json_helpers;
 pub mod logger;
 pub mod open;
 pub mod paths;
