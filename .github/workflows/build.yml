@@ -43,21 +43,17 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      # Download a prebuilt webui static lib based on OS, and rename to libwebui-2-static.a
-      - name: Download WebUI
-        if: matrix.platform == 'ubuntu-20.04'
-        run: |
-          curl -L https://github.com/SpikeHD/webui/releases/download/v0.0.0/libwebui-2-static_linux.a -o libwebui-2-static.a
-      
-      - name: Download WebUI
-        if: matrix.platform == 'windows-latest'
-        run: |
-          curl -L https://github.com/SpikeHD/webui/releases/download/v0.0.0/webui-2-static.lib -o webui-2-static.lib
+      - name: Clone WebUI
+        run: git clone -b ext git@github.com:SpikeHD/webui.git
 
-      - name: Download WebUI
-        if: matrix.platform == 'macos-latest'
+      - name: Build WebUI
         run: |
-          curl -L https://github.com/SpikeHD/webui/releases/download/v0.0.0/libwebui-2-static_macos.a -o libwebui-2-static.a
+          cd webui
+          make
+          cd ..
+
+      - name: Move static WebUI lib to root
+        run: mv webui/dist/*webui-2-static* .
 
       - name: Build
         run: cargo build --release
