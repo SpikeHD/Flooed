@@ -1,6 +1,4 @@
-use miniserde::json::Value;
-
-use crate::util::json_helpers::{ToObject, ToString};
+use serde_json::Value;
 
 pub mod plugins;
 pub mod themes;
@@ -13,29 +11,36 @@ pub fn register_plugin_commands(ws: &mut super::util::ws::WsConnector) {
 
   ws.register_command("get_plugins", |_| {
     let plugins = plugins::get_plugin_list();
-
     Some(
-      miniserde::json::to_string(&plugins)
+      serde_json::to_value(plugins)
+        .unwrap_or_default()
+        .to_string(),
     )
   });
 
   ws.register_command("toggle_plugin", |data| {
     let name = data
       .unwrap_or(Value::Null)
+      .as_str()
+      .unwrap_or_default()
       .to_string();
-
     Some(
-      plugins::toggle_plugin(name).to_string()
+      serde_json::to_value(plugins::toggle_plugin(name))
+        .unwrap_or_default()
+        .to_string(),
     )
   });
 
   ws.register_command("toggle_preload", |data| {
     let name = data
       .unwrap_or(Value::Null)
+      .as_str()
+      .unwrap_or_default()
       .to_string();
-
     Some(
-      plugins::toggle_preload(name).to_string()
+      serde_json::to_value(plugins::toggle_preload(name))
+        .unwrap_or_default()
+        .to_string(),
     )
   });
 }
@@ -43,15 +48,16 @@ pub fn register_plugin_commands(ws: &mut super::util::ws::WsConnector) {
 pub fn register_theme_commands(ws: &mut super::util::ws::WsConnector) {
   ws.register_command("get_theme", |data| {
     if let Some(data) = data {
-      let data = data.to_object();
-      let name = data.get("name").unwrap_or(&Value::Null).to_string();
+      let name = data.get("name").unwrap_or(&Value::Null).as_str().unwrap().to_string();
       let theme = themes::get_theme(name);
 
       println!("{:?}", theme);
 
       if let Ok(theme) = theme {
         Some(
-          theme
+          serde_json::to_value(theme)
+            .unwrap_or_default()
+            .to_string(),
         )
       } else {
         None
@@ -63,12 +69,10 @@ pub fn register_theme_commands(ws: &mut super::util::ws::WsConnector) {
 
   ws.register_command("get_theme_names", |_| {
     if let Ok(themes) = themes::get_theme_names() {
-      // Convert the Vec<String> to a a Vec<Value>
-      let themes: Vec<Value> = themes.iter().map(|t| Value::String(t.to_string())).collect();
-      let arr = miniserde::json::Array::from_iter(themes.into_iter());
-
       Some(
-        miniserde::json::to_string(&arr)
+        serde_json::to_value(themes)
+          .unwrap_or_default()
+          .to_string(),
       )
     } else {
       None
@@ -77,11 +81,12 @@ pub fn register_theme_commands(ws: &mut super::util::ws::WsConnector) {
 
   ws.register_command("theme_from_link", |data| {
     if let Some(data) = data {
-      let data = data.to_object();
-      let name = data.get("link").unwrap_or(&Value::Null).to_string();
+      let link = data.as_str().unwrap_or_default().to_string();
       
       Some(
-        name
+        serde_json::to_value(themes::theme_from_link(link))
+          .unwrap_or_default()
+          .to_string(),
       )
     } else {
       None
@@ -91,8 +96,10 @@ pub fn register_theme_commands(ws: &mut super::util::ws::WsConnector) {
   // This is a Dorion compat command
   ws.register_command("localize_imports", |data| {
     if let Some(data) = data {
-      let data = data.to_object();
-      let css = data.get("css").unwrap_or(&Value::Null).to_string();
+      let css = match data.get("css") {
+        Some(c) => c.as_str().unwrap().to_string(),
+        None => return Some(String::from("")),
+      };
       
       Some(css)
     } else {

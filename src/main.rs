@@ -16,7 +16,6 @@ use util::process::process_already_exists;
 use util::register_path_commands;
 use util::ws::WsConnector;
 use util::{logger, paths::get_profile_dir};
-use util::json_helpers::{ToObject, ToString};
 //use webui_rs::webui::bindgen::webui_get_best_browser;
 use webui_rs::webui::{bindgen::webui_set_profile, wait, WebUIBrowser, Window};
 
@@ -129,10 +128,8 @@ fn register_commands(ws: &mut WsConnector) {
   ws.register_command("read_config_file", |_| Some(config::read_config_file()));
   ws.register_command("write_config_file", |data| {
     if let Some(data) = data {
-      let data = data.to_object();
-
       let contents = match data.get("contents") {
-        Some(c) => c.to_string(),
+        Some(c) => c.as_str().unwrap().to_string(),
         None => return Some(String::from("false")),
       };
       config::write_config_file(contents);

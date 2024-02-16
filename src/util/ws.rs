@@ -1,4 +1,5 @@
-use miniserde::{Deserialize, Serialize, json::Value};
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use simple_websockets::{self, Event, Message, Responder};
 use std::{collections::HashMap, sync::{Arc, Mutex}};
 
@@ -67,7 +68,7 @@ impl WsConnector {
                 logger::log(format!("Flooed frontend sent message: {}", text));
 
                 // See if there is an associated command
-                let command: Command = match miniserde::json::from_str(&text) {
+                let command: Command = match serde_json::from_str(&text) {
                   Ok(c) => c,
                   Err(e) => {
                     logger::log(format!("Error parsing command: {}", e));
@@ -85,11 +86,11 @@ impl WsConnector {
 
                   let resp_command = Command {
                     command: "response".to_string(),
-                    data: Some(str),
+                    data: Some(serde_json::to_value(result).unwrap()),
                     id: command.id,
                   };
 
-                  responder.send(Message::Text(miniserde::json::to_string(&resp_command)));
+                  responder.send(Message::Text(serde_json::to_string(&resp_command).unwrap()));
                 } else {
                   logger::log(format!("Command not found: {}", command.command));
                   responder.send(Message::Text(format!("Command not found: {}", command.command)));
