@@ -74,16 +74,6 @@ class FlooedApi {
 }
 
 ;(async () => {
-  console.log('[Flooed] Dirtily patching JSON.parse')
-  scriptTagExec(`
-  const originalParse = JSON.parse
-  JSON.parse = function (str) {
-    // if it's already an object, return it
-    if (typeof str === 'object') return str
-    return originalParse(str)
-  }
-  `)
-
   // Recreate localStorage
   console.log('[Create LocalStorage] Injecting...')
   scriptTagExec(`
