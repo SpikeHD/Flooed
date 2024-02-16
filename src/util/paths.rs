@@ -49,7 +49,18 @@ pub fn get_plugin_dir() -> std::path::PathBuf {
   let current_exe = std::env::current_exe().unwrap_or_default();
   let local_plugin_dir = current_exe.parent().unwrap().join("plugins");
 
-  if fs::metadata(&local_plugin_dir).is_ok() {
+  if config_is_local() {
+    // Ensure the local plugin dir exists
+    if fs::metadata(&local_plugin_dir).is_err() {
+      match fs::create_dir_all(&local_plugin_dir) {
+        Ok(()) => (),
+        Err(e) => {
+          log(format!("Error creating local plugin dir: {}", e));
+          return local_plugin_dir;
+        }
+      };
+    }
+
     return local_plugin_dir;
   }
 
@@ -86,6 +97,17 @@ pub fn get_theme_dir() -> std::path::PathBuf {
   let local_theme_dir = current_exe.parent().unwrap().join("themes");
 
   if config_is_local() {
+    // Ensure local theme dir exists
+    if fs::metadata(&local_theme_dir).is_err() {
+      match fs::create_dir_all(&local_theme_dir) {
+        Ok(()) => (),
+        Err(e) => {
+          log(format!("Error creating local theme dir: {}", e));
+          return local_theme_dir;
+        }
+      };
+    }
+
     return local_theme_dir;
   }
 
@@ -134,7 +156,11 @@ pub fn get_profile_dir(browser: usize) -> PathBuf {
 
   if config_is_local() {
     // This is a portable install, so we can use the local injection dir
-    return current_exe.parent().unwrap().join("profile");
+    return current_exe
+      .parent()
+      .unwrap()
+      .join("profile")
+      .join(format!("{}", browser));
   }
 
   #[cfg(target_os = "windows")]
