@@ -79,9 +79,13 @@ impl WsConnector {
                 if commands.contains_key(&command.command) {
                   let callback = commands.get(&command.command).unwrap();
                   let result = callback(command.data.clone()).unwrap_or_default();
+                  let str: Value = miniserde::json::from_str(&result).unwrap_or_else(|_| {
+                    Value::String(result)
+                  });
+
                   let resp_command = Command {
                     command: "response".to_string(),
-                    data: Some(miniserde::json::from_str(&result).unwrap()),
+                    data: Some(str),
                     id: command.id,
                   };
 
