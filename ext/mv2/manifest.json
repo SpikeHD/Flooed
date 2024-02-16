@@ -9,6 +9,7 @@
     "storage",
     "webRequest",
     "webRequestBlocking",
+    "tabs",
     "https://discord.com/*",
     "https://ptb.discord.com/*",
     "https://canary.discord.com/*"
