@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use simple_websockets::{self, Event, Message, Responder};
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, sync::{Arc, Mutex}};
 
 use super::logger;
 
@@ -15,6 +15,8 @@ struct Command {
 type CallbackFn = fn(Option<Value>) -> Option<String>;
 
 pub struct WsConnector {
+  pub clients: Arc<Mutex<HashMap<u64, Responder>>>,
+  
   ws: Arc<simple_websockets::EventHub>,
   commands: HashMap<String, CallbackFn>,
 }
@@ -27,6 +29,7 @@ impl WsConnector {
           .expect("Could not launch WebSocket server. Is Flooed already running?"),
       ),
       commands: HashMap::new(),
+      clients: Arc::new(Mutex::new(HashMap::new())),
     }
   }
 
@@ -36,11 +39,12 @@ impl WsConnector {
   pub fn start(&self) {
     let ws = self.ws.clone();
     let commands = self.commands.clone();
+    let mut clients = self.clients.clone();
 
     std::thread::spawn(move || {
-      let mut clients: HashMap<u64, Responder> = HashMap::new();
-
       loop {
+        let mut clients = clients.lock().unwrap();
+
         match ws.poll_event() {
           Event::Connect(client_id, responder) => {
             logger::log(format!("Flooed frontend connected: {}", client_id));
@@ -75,7 +79,7 @@ impl WsConnector {
 
                 if commands.contains_key(&command.command) {
                   let callback = commands.get(&command.command).unwrap();
-                  let result = callback(command.data.clone());
+                  let result = callback(command.data.clone()).unwrap_or_default();
                   let resp_command = Command {
                     command: "response".to_string(),
                     data: Some(serde_json::to_value(result).unwrap()),

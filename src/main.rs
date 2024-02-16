@@ -11,7 +11,7 @@ mod util;
 use std::fs;
 
 use config::get_config;
-use extra::register_plugin_commands;
+use extra::{register_plugin_commands, register_theme_commands};
 use util::process::process_already_exists;
 use util::register_path_commands;
 use util::ws::WsConnector;
@@ -97,6 +97,15 @@ fn main() {
   win.show_browser(client, browser);
 
   wait();
+
+  // We should be able to safely wait until the websocket server has no clients
+  loop {
+    if ws.clients.lock().unwrap().is_empty() {
+      break;
+    }
+
+    std::thread::sleep(std::time::Duration::from_millis(100));
+  }
 }
 
 fn show_notification(summary: &str, body: &str) {
@@ -119,7 +128,11 @@ fn register_commands(ws: &mut WsConnector) {
   ws.register_command("read_config_file", |_| Some(config::read_config_file()));
   ws.register_command("write_config_file", |data| {
     if let Some(data) = data {
-      config::write_config_file(data.to_string());
+      let contents = match data.get("contents") {
+        Some(c) => c.as_str().unwrap().to_string(),
+        None => return Some(String::from("false")),
+      };
+      config::write_config_file(contents);
       return Some(String::from("true"));
     }
 
@@ -127,5 +140,6 @@ fn register_commands(ws: &mut WsConnector) {
   });
 
   register_plugin_commands(ws);
+  register_theme_commands(ws);
   register_path_commands(ws);
 }

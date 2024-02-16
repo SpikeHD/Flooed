@@ -36,12 +36,17 @@ class FlooedApi {
   
         if (data.command === 'response') {
           if (this.commandsWaiting[data.id]) {
+            // Attempt converting data.data to JSON
+            try {
+              data.data = JSON.parse(data.data);
+            } catch (e) {}
+
             this.commandsWaiting[data.id](data.data);
             delete this.commandsWaiting[data.id];
           }
         }
       } catch (e) {
-        console.error('[Flooed] Command failed')
+        console.error('[Flooed] Command failed: ', e)
       }
     }
   }
@@ -101,6 +106,24 @@ class FlooedApi {
     console.log('[Flooed] Fetching version...')
     window.Flooed.version = await Flooed.invoke('get_version')
     console.log('[Flooed] Version: ', window.Flooed.version)
+
+    console.log('[Theme Loader] Loading theme...')
+    
+    const config = JSON.parse(await Flooed.invoke('read_config_file'))
+    const theme = await Flooed.invoke('get_theme', { name: config.theme })
+
+    console.log('[Theme Loader] Theme: ', config.theme)
+    console.log('[Theme Loader] Theme CSS: ', theme)
+
+    if (theme !== '') {
+      const css = window.Flooed.util.cssSanitize(theme)
+      const style = document.createElement('style')
+      style.innerText = css
+      style.id = 'flooed-theme'
+      document.head.appendChild(style)
+
+      console.log(document.querySelector('#flooed-theme'))
+    }
   })()
   `)
 
