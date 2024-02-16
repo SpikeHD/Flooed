@@ -1,7 +1,8 @@
 use serde_json::Value;
 
-pub mod plugins;
 pub mod themes;
+pub mod plugins;
+pub mod rpc;
 
 pub fn register_plugin_commands(ws: &mut super::util::ws::WsConnector) {
   ws.register_command("get_new_plugins", |_| {
@@ -25,9 +26,7 @@ pub fn register_plugin_commands(ws: &mut super::util::ws::WsConnector) {
       .unwrap_or_default()
       .to_string();
     Some(
-      serde_json::to_value(plugins::toggle_plugin(name))
-        .unwrap_or_default()
-        .to_string(),
+      plugins::toggle_plugin(name).to_string()
     )
   });
 
@@ -38,9 +37,7 @@ pub fn register_plugin_commands(ws: &mut super::util::ws::WsConnector) {
       .unwrap_or_default()
       .to_string();
     Some(
-      serde_json::to_value(plugins::toggle_preload(name))
-        .unwrap_or_default()
-        .to_string(),
+      plugins::toggle_preload(name).to_string()
     )
   });
 }
@@ -48,7 +45,7 @@ pub fn register_plugin_commands(ws: &mut super::util::ws::WsConnector) {
 pub fn register_theme_commands(ws: &mut super::util::ws::WsConnector) {
   ws.register_command("get_theme", |data| {
     if let Some(data) = data {
-      let name = data.get("name").unwrap_or(&Value::Null).as_str().unwrap().to_string();
+      let name = data.get("name").unwrap_or(&Value::Null).as_str().unwrap_or("").to_string();
       let theme = themes::get_theme(name);
 
       println!("{:?}", theme);

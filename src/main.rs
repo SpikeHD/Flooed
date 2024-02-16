@@ -73,6 +73,13 @@ fn main() {
 
   logger::log("Starting on client: ".to_string() + client);
 
+  // Start RPC server
+  if config.rpc_server.unwrap_or(false) {
+    std::thread::spawn(|| {
+      extra::rpc::start_rpc_server();
+    });
+  }
+
   // Get current working dir
   let cwd = std::env::current_dir().unwrap();
 
@@ -137,6 +144,14 @@ fn register_commands(ws: &mut WsConnector) {
     }
 
     Some(String::from("false"))
+  });
+
+  ws.register_command("relaunch", |_| {
+    std::process::Command::new(std::env::current_exe().unwrap())
+      .spawn()
+      .expect("Failed to relaunch");
+
+    std::process::exit(0);
   });
 
   register_plugin_commands(ws);
