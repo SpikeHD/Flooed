@@ -36,6 +36,18 @@
 
 Download a release for your platform from the [releases page](https://github.com/SpikeHD/Flooed/releases)!
 
+
+# Features
+
+* Stupidly small (< 5mb) binary size
+* Uses whatever browser you already have installed
+  * While it should cover 90% of cases, I apologize in advance if your fork-of-a-fork of Firefox isn't detected
+* Theme support
+* Plugin support
+  * Comes with [Shelter](https://github.com/uwu/shelter) by default
+  * Also supports [Vencord](https://github.com/vendicated/vencord)
+* RPC support through [rsRPC](https://github.com/SpikeHD/rsRPC) and the [shelteRPC plugin](https://github.com/SpikeHD/shelter-plugins?tab=readme-ov-file#shelterpc)
+
 # Building
 
 ## Prerequisites
@@ -48,17 +60,6 @@ Download a release for your platform from the [releases page](https://github.com
 1. Clone the repository
 2. Place `webui-2-static` in the root of the repository
 3. Run `cargo build --release`
-
-# Features
-
-* Stupidly small (< 5mb) binary size
-* Uses whatever browser you already have installed
-  * While it should cover 90% of cases, I apologize in advance if your fork-of-a-fork of Firefox isn't detected
-* Theme support
-* Plugin support
-  * Comes with [Shelter](https://github.com/uwu/shelter) by default
-  * Also supports [Vencord](https://github.com/vendicated/vencord)
-* RPC support through [rsRPC](https://github.com/SpikeHD/rsRPC) and the [shelteRPC plugin](https://github.com/SpikeHD/shelter-plugins?tab=readme-ov-file#shelterpc)
 
 # Contributing
 
