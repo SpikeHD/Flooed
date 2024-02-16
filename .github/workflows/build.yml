@@ -49,6 +49,14 @@ jobs:
         run: git clone -b ext https://github.com/SpikeHD/webui.git
 
       - name: Build WebUI
+        if: matrix.platform != 'windows-latest'
+        run: |
+          cd webui
+          make
+          cd ..
+
+      - name: Build WebUI
+        if: matrix.platform == 'windows-latest'
         run: |
           cd webui
           nmake
