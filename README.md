@@ -27,10 +27,11 @@
 # Table of Contents
 
 * [Installation](#installation)
+* [Features](#features)
 * [Building](#building)
   * [Prerequisites](#prerequisites)
   * [Steps](#steps)
-* [Features](#features)
+* [Screenshots](#screenshots) 
 
 # Installation
 
@@ -40,7 +41,7 @@ Download a release for your platform from the [releases page](https://github.com
 # Features
 
 * Stupidly small (< 5mb) binary size
-* Uses whatever browser you already have installed
+* Uses whatever browser you already have installed (eg. Chromium-based browsers, Firefox)
   * While it should cover 90% of cases, I apologize in advance if your fork-of-a-fork of Firefox isn't detected
 * Theme support
 * Plugin support
@@ -60,6 +61,14 @@ Download a release for your platform from the [releases page](https://github.com
 1. Clone the repository
 2. Place `webui-2-static` in the root of the repository
 3. Run `cargo build --release`
+
+# Screenshots
+
+<details>
+ <summary>Flooed running in both Chrome and Firefox</summary>
+ 
+ ![image](https://github.com/SpikeHD/Flooed/assets/25207995/ad166a9b-5168-41cf-951f-c6b2bcd025c1)
+</details>
 
 # Contributing
 
