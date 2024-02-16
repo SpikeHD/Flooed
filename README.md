@@ -51,7 +51,14 @@ Download a release for your platform from the [releases page](https://github.com
 
 # Features
 
-* Kinda nothing yet
+* Stupidly small (< 5mb) binary size
+* Uses whatever browser you already have installed
+  * While it should cover 90% of cases, I apologize in advance if your fork-of-a-fork of Firefox isn't detected
+* Theme support
+* Plugin support
+  * Comes with [Shelter](https://github.com/uwu/shelter) by default
+  * Also supports [Vencord](https://github.com/vendicated/vencord)
+* RPC support through [rsRPC](https://github.com/SpikeHD/rsRPC) and the [shelteRPC plugin](https://github.com/SpikeHD/shelter-plugins?tab=readme-ov-file#shelterpc)
 
 # Contributing
 
