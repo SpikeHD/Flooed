@@ -53,7 +53,12 @@ jobs:
           cd ..
 
       - name: Move static WebUI lib to root
+        if: matrix.platform != 'windows-latest'
         run: mv webui/dist/*webui-2-static* .
+
+      - name: Move static WebUI lib to root
+        if: matrix.platform == 'windows-latest'
+        run: move webui\dist\*webui-2-static* ./webui-2-static.lib
 
       - name: Build
         run: cargo build --release
