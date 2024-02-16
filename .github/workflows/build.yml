@@ -51,7 +51,7 @@ jobs:
       - name: Build WebUI
         run: |
           cd webui
-          make
+          nmake
           cd ..
 
       - name: Move static WebUI lib to root
