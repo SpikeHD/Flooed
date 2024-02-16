@@ -89,7 +89,7 @@ impl WsConnector {
                   responder.send(Message::Text(serde_json::to_string(&resp_command).unwrap()));
                 } else {
                   logger::log(format!("Command not found: {}", command.command));
-                  responder.send(Message::Text("Command not found".to_string()));
+                  responder.send(Message::Text(format!("Command not found: {}", command.command)));
                 }
               }
               Message::Binary(data) => {

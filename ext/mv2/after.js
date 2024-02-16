@@ -36,9 +36,11 @@ class FlooedApi {
   
         if (data.command === 'response') {
           if (this.commandsWaiting[data.id]) {
-            // Attempt converting data.data to JSON
             try {
-              data.data = JSON.parse(data.data);
+              // For compat reasons, config must stay a string
+              if (!JSON.parse(data.data).client_type) {
+                data.data = JSON.parse(data.data)
+              }
             } catch (e) {}
 
             this.commandsWaiting[data.id](data.data);
@@ -120,9 +122,8 @@ class FlooedApi {
       const style = document.createElement('style')
       style.innerText = css
       style.id = 'flooed-theme'
-      document.head.appendChild(style)
 
-      console.log(document.querySelector('#flooed-theme'))
+      document.body.appendChild(style)
     }
   })()
   `)
