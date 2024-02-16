@@ -42,6 +42,8 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: matrix.platform == 'windows-latest'
 
       - name: Clone WebUI
         run: git clone -b ext https://github.com/SpikeHD/webui.git
