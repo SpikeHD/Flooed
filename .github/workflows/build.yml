@@ -44,7 +44,7 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Clone WebUI
-        run: git clone -b ext git@github.com:SpikeHD/webui.git
+        run: git clone -b ext https://github.com/SpikeHD/webui.git
 
       - name: Build WebUI
         run: |
