@@ -41,7 +41,7 @@ Download a release for your platform from the [releases page](https://github.com
 ## Prerequisites
 
 1. [Rust and Cargo](https://www.rust-lang.org/tools/install)
-2. [Static WebUI binary](https://github.com/webui-dev/webui/actions/workflows/ci.yml) (if on Windows, use the MSVC build)
+2. [Static WebUI binary](https://github.com/SpikeHD/webui/actions?query=branch%3Aext) (if on Windows, use the MSVC build)
 
 ## Steps
 
