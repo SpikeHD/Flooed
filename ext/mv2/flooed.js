@@ -73,7 +73,51 @@ class FlooedApi {
   }
 }
 
+async function init() {
+  window.Flooed = new FlooedApi()
+
+  console.log('[Flooed] Fetching version...')
+  window.Flooed.version = await Flooed.invoke('get_version')
+  console.log('[Flooed] Version: ', window.Flooed.version)
+
+  console.log('[Client Mod Loader] Loading additional mods...')
+
+  const mods = await Flooed.invoke('load_client_mods_js')
+  const modsCss = await Flooed.invoke('load_client_mods_css')
+
+  window.eval(mods)
+
+  // Client mod CSS
+  const style = document.createElement('style')
+  style.innerHTML = modsCss
+  document.head.appendChild(style)
+
+  console.log('[Theme Loader] Loading theme...')
+
+  const config = JSON.parse(await Flooed.invoke('read_config_file'))
+  const theme = await Flooed.invoke('get_theme', { name: config.theme })
+
+  console.log('[Theme Loader] Theme: ', config.theme)
+
+  if (theme !== '') {
+    const css = window.Flooed.util.cssSanitize(theme)
+    const style = document.createElement('style')
+    style.innerHTML = css
+    style.id = 'flooed-theme'
+
+    document.body.appendChild(style)
+  }
+}
+
 ;(async () => {
+  console.log('[Flooed] Injecting...')
+
+  // Then we define window.Flooed
+  scriptTagExec(`
+  ${FlooedApi.toString()}
+  ;(${init.toString()})()
+  `)
+
   // Recreate localStorage
   console.log('[Create LocalStorage] Injecting...')
   scriptTagExec(`
@@ -97,76 +141,8 @@ class FlooedApi {
   }, 50)
   `)
 
-  console.log('[Flooed] Injecting...')
-  // Then we define window.Flooed
-  scriptTagExec(`
-  ${FlooedApi.toString()}
-
-  window.Flooed = new FlooedApi()
-
-  ;(async () => {
-    console.log('[Flooed] Fetching version...')
-    window.Flooed.version = await Flooed.invoke('get_version')
-    console.log('[Flooed] Version: ', window.Flooed.version)
-
-    console.log('[Theme Loader] Loading theme...')
-    
-    const config = JSON.parse(await Flooed.invoke('read_config_file'))
-    const theme = await Flooed.invoke('get_theme', { name: config.theme })
-
-    console.log('[Theme Loader] Theme: ', config.theme)
-    console.log('[Theme Loader] Theme CSS: ', theme)
-
-    if (theme !== '') {
-      const css = window.Flooed.util.cssSanitize(theme)
-      const style = document.createElement('style')
-      style.innerText = css
-      style.id = 'flooed-theme'
-
-      document.body.appendChild(style)
-    }
-  })()
-  `)
-
   await ensurePlugins();
 })()
-
-async function ensurePlugins() {
-  const requiredPlugins = {
-    'Dorion Settings':
-      'https://spikehd.github.io/shelter-plugins/dorion-settings/',
-    'Dorion Notifications':
-      'https://spikehd.github.io/shelter-plugins/dorion-notifications/',
-    'Dorion Streamer Mode':
-      'https://spikehd.github.io/shelter-plugins/dorion-streamer-mode/',
-    'Dorion Updater':
-      'https://spikehd.github.io/shelter-plugins/dorion-updater/',
-    'Dorion PTT': 'https://spikehd.github.io/shelter-plugins/dorion-ptt/',
-    'Dorion Tray': 'https://spikehd.github.io/shelter-plugins/dorion-tray/',
-  }
-
-  const promises = [
-    ...Object.entries(requiredPlugins).map(async ([name, url]) => {
-      const res = await fetch(`${url}/plugin.js`)
-      const text = await res.text()
-
-      // Eval
-      try {
-        console.log('[Ensure Plugins] Loading plugin: ', name)
-
-        // Create a new plugin object. Simpler version of https://github.com/uwu/shelter/blob/ac74061864479ecb688ae5efc321e981cd1b54fa/packages/shelter/src/plugins.tsx#L54
-        const pluginStr = `shelter=>{return ${text}}${atob('Ci8v')}`
-        const fn = eval(pluginStr)
-        
-        scriptTagExec(`(${fn.toString()})(shelter)`)
-      } catch (e) {
-        console.error(`[Ensure Plugins] Failed to load plugin ${name}: `, e)
-      }
-    }),
-  ]
-
-  await Promise.all(promises)
-}
 
 async function scriptTagExec(script) {
   const scriptTag = document.createElement("script");

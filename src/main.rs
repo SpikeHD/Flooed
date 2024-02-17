@@ -11,7 +11,8 @@ mod util;
 use std::fs;
 
 use config::get_config;
-use extra::{register_plugin_commands, register_theme_commands};
+use extra::{register_client_mod_commands, register_plugin_commands, register_theme_commands};
+use serde_json::Value;
 use util::process::process_already_exists;
 use util::register_path_commands;
 use util::ws::WsConnector;
@@ -127,9 +128,9 @@ fn _show_notification(summary: &str, body: &str) {
 }
 
 fn register_commands(ws: &mut WsConnector) {
-  ws.register_command("get_version", |_| Some(VERSION.to_string()));
-  ws.register_command("read_config_file", |_| Some(config::read_config_file()));
-  ws.register_command("write_config_file", |data| {
+  register_command!(ws, get_version, |_| Some(VERSION.to_string()));
+  register_command!(ws, read_config_file, |_| Some(config::read_config_file()));
+  register_command!(ws, write_config_file, |data: Option<Value>| {
     if let Some(data) = data {
       let contents = match data.get("contents") {
         Some(c) => c.as_str().unwrap().to_string(),
@@ -142,7 +143,7 @@ fn register_commands(ws: &mut WsConnector) {
     Some(String::from("false"))
   });
 
-  ws.register_command("relaunch", |_| {
+  register_command!(ws, relaunch, |_| {
     std::process::Command::new(std::env::current_exe().unwrap())
       .spawn()
       .expect("Failed to relaunch");
@@ -151,6 +152,7 @@ fn register_commands(ws: &mut WsConnector) {
   });
 
   register_plugin_commands(ws);
+  register_client_mod_commands(ws);
   register_theme_commands(ws);
   register_path_commands(ws);
 }

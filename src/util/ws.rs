@@ -2,8 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use simple_websockets::{self, Event, Message, Responder};
 use std::{
-  collections::HashMap,
-  sync::{Arc, Mutex},
+  collections::HashMap, sync::{Arc, Mutex}
 };
 
 use super::logger;
@@ -15,13 +14,13 @@ struct Command {
   id: u64,
 }
 
-type CallbackFn = fn(Option<Value>) -> Option<String>;
+type CallbackFn = Arc<Mutex<dyn Fn(Option<Value>) -> Option<String> + Send + Sync>>;
 
 pub struct WsConnector {
   pub clients: Arc<Mutex<HashMap<u64, Responder>>>,
 
   ws: Arc<simple_websockets::EventHub>,
-  commands: HashMap<String, CallbackFn>,
+  commands: Arc<Mutex<HashMap<String, CallbackFn>>>,
 }
 
 impl WsConnector {
@@ -31,7 +30,7 @@ impl WsConnector {
         simple_websockets::launch(10102)
           .expect("Could not launch WebSocket server. Is Flooed already running?"),
       ),
-      commands: HashMap::new(),
+      commands: Arc::new(Mutex::new(HashMap::new())),
       clients: Arc::new(Mutex::new(HashMap::new())),
     }
   }
@@ -65,6 +64,7 @@ impl WsConnector {
           }
           Event::Message(client_id, message) => {
             let responder = clients.get(&client_id).unwrap();
+            let commands = commands.lock().unwrap();
 
             match message {
               Message::Text(text) => {
@@ -81,8 +81,9 @@ impl WsConnector {
                 };
 
                 if commands.contains_key(&command.command) {
-                  let callback = commands.get(&command.command).unwrap();
+                  let callback = commands.get(&command.command).expect("Command not found").lock().unwrap();
                   let result = callback(command.data.clone()).unwrap_or_default();
+
                   let resp_command = Command {
                     command: "response".to_string(),
                     data: Some(serde_json::to_value(result).unwrap()),
@@ -110,6 +111,6 @@ impl WsConnector {
   }
 
   pub fn register_command(&mut self, command: &str, callback: CallbackFn) {
-    self.commands.insert(command.to_string(), callback);
+    self.commands.lock().unwrap().insert(command.to_string(), callback);
   }
 }

@@ -1,11 +1,14 @@
+use crate::register_command;
+
 pub mod logger;
+pub mod macros;
 pub mod open;
 pub mod paths;
 pub mod process;
 pub mod ws;
 
 pub fn register_path_commands(ws: &mut ws::WsConnector) {
-  ws.register_command("get_plugin_dir", |_| {
+  register_command!(ws, get_plugin_dir, |_| {
     Some(
       paths::get_plugin_dir()
         .to_str()
@@ -14,7 +17,7 @@ pub fn register_path_commands(ws: &mut ws::WsConnector) {
     )
   });
 
-  ws.register_command("get_theme_dir", |_| {
+  register_command!(ws, get_theme_dir, |_| {
     Some(
       paths::get_theme_dir()
         .to_str()
@@ -23,12 +26,12 @@ pub fn register_path_commands(ws: &mut ws::WsConnector) {
     )
   });
 
-  ws.register_command("open_plugins", |_| {
+  register_command!(ws, open_plugins, |_| {
     open::open_folder(paths::get_plugin_dir()).unwrap_or_default();
     None
   });
 
-  ws.register_command("open_themes", |_| {
+  register_command!(ws, open_themes, |_| {
     open::open_folder(paths::get_theme_dir()).unwrap_or_default();
     None
   });

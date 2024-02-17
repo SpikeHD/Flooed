@@ -22,12 +22,12 @@
   "content_scripts": [
     {
       "matches": ["https://discord.com/*", "https://ptb.discord.com/*", "https://canary.discord.com/*"],
-      "js": ["content.js"],
+      "js": ["content.js", "flooed.js"],
       "run_at": "document_start"
     },
     {
       "matches": ["https://discord.com/*", "https://ptb.discord.com/*", "https://canary.discord.com/*"],
-      "js": ["after.js"],
+      "js": ["flooed_after.js"],
       "run_at": "document_end"
     }
   ],
