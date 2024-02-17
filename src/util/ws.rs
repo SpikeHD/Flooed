@@ -1,7 +1,10 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use simple_websockets::{self, Event, Message, Responder};
-use std::{collections::HashMap, sync::{Arc, Mutex}};
+use std::{
+  collections::HashMap,
+  sync::{Arc, Mutex},
+};
 
 use super::logger;
 
@@ -16,7 +19,7 @@ type CallbackFn = fn(Option<Value>) -> Option<String>;
 
 pub struct WsConnector {
   pub clients: Arc<Mutex<HashMap<u64, Responder>>>,
-  
+
   ws: Arc<simple_websockets::EventHub>,
   commands: HashMap<String, CallbackFn>,
 }
@@ -39,7 +42,7 @@ impl WsConnector {
   pub fn start(&self) {
     let ws = self.ws.clone();
     let commands = self.commands.clone();
-    let mut clients = self.clients.clone();
+    let clients = self.clients.clone();
 
     std::thread::spawn(move || {
       loop {
@@ -89,7 +92,10 @@ impl WsConnector {
                   responder.send(Message::Text(serde_json::to_string(&resp_command).unwrap()));
                 } else {
                   logger::log(format!("Command not found: {}", command.command));
-                  responder.send(Message::Text(format!("Command not found: {}", command.command)));
+                  responder.send(Message::Text(format!(
+                    "Command not found: {}",
+                    command.command
+                  )));
                 }
               }
               Message::Binary(data) => {

@@ -1,8 +1,5 @@
+use rsrpc::{detection::DetectableActivity, RPCServer};
 use serde::{Deserialize, Serialize};
-use rsrpc::{
-  detection::{DetectableActivity, Executable},
-  RPCServer,
-};
 use std::sync::{Arc, Mutex};
 use sysinfo::System;
 use window_titles::ConnectionTrait;
@@ -11,8 +8,8 @@ use crate::util::paths::custom_detectables_path;
 
 #[derive(Clone, Deserialize)]
 struct Payload {
-  name: String,
-  exe: String,
+  _name: String,
+  _exe: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -37,7 +34,7 @@ pub fn get_local_detectables() -> Vec<DetectableActivity> {
   detectables
 }
 
-pub fn append_to_local(detectables: Vec<DetectableActivity>) {
+pub fn _append_to_local(detectables: Vec<DetectableActivity>) {
   let mut local_detectables = get_local_detectables();
 
   local_detectables.extend(detectables);
@@ -83,7 +80,7 @@ pub fn start_rpc_server() {
   }
 }
 
-fn blank_activity() -> DetectableActivity {
+fn _blank_activity() -> DetectableActivity {
   serde_json::from_str::<DetectableActivity>(
     r#"
   {
@@ -103,7 +100,7 @@ fn blank_activity() -> DetectableActivity {
   .unwrap()
 }
 
-pub fn get_windows() -> Vec<Window> {
+pub fn _get_windows() -> Vec<Window> {
   let conn = window_titles::Connection::new().expect("Failed to connect to window titles");
   let mut system = System::new_all();
 

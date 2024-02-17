@@ -1,8 +1,8 @@
 use serde_json::Value;
 
-pub mod themes;
 pub mod plugins;
 pub mod rpc;
+pub mod themes;
 
 pub fn register_plugin_commands(ws: &mut super::util::ws::WsConnector) {
   ws.register_command("get_new_plugins", |_| {
@@ -25,9 +25,7 @@ pub fn register_plugin_commands(ws: &mut super::util::ws::WsConnector) {
       .as_str()
       .unwrap_or_default()
       .to_string();
-    Some(
-      plugins::toggle_plugin(name).to_string()
-    )
+    Some(plugins::toggle_plugin(name).to_string())
   });
 
   ws.register_command("toggle_preload", |data| {
@@ -36,26 +34,25 @@ pub fn register_plugin_commands(ws: &mut super::util::ws::WsConnector) {
       .as_str()
       .unwrap_or_default()
       .to_string();
-    Some(
-      plugins::toggle_preload(name).to_string()
-    )
+    Some(plugins::toggle_preload(name).to_string())
   });
 }
 
 pub fn register_theme_commands(ws: &mut super::util::ws::WsConnector) {
   ws.register_command("get_theme", |data| {
     if let Some(data) = data {
-      let name = data.get("name").unwrap_or(&Value::Null).as_str().unwrap_or("").to_string();
+      let name = data
+        .get("name")
+        .unwrap_or(&Value::Null)
+        .as_str()
+        .unwrap_or("")
+        .to_string();
       let theme = themes::get_theme(name);
 
       println!("{:?}", theme);
 
       if let Ok(theme) = theme {
-        Some(
-          serde_json::to_value(theme)
-            .unwrap_or_default()
-            .to_string(),
-        )
+        Some(serde_json::to_value(theme).unwrap_or_default().to_string())
       } else {
         None
       }
@@ -66,11 +63,7 @@ pub fn register_theme_commands(ws: &mut super::util::ws::WsConnector) {
 
   ws.register_command("get_theme_names", |_| {
     if let Ok(themes) = themes::get_theme_names() {
-      Some(
-        serde_json::to_value(themes)
-          .unwrap_or_default()
-          .to_string(),
-      )
+      Some(serde_json::to_value(themes).unwrap_or_default().to_string())
     } else {
       None
     }
@@ -79,7 +72,7 @@ pub fn register_theme_commands(ws: &mut super::util::ws::WsConnector) {
   ws.register_command("theme_from_link", |data| {
     if let Some(data) = data {
       let link = data.as_str().unwrap_or_default().to_string();
-      
+
       Some(
         serde_json::to_value(themes::theme_from_link(link))
           .unwrap_or_default()
@@ -97,7 +90,7 @@ pub fn register_theme_commands(ws: &mut super::util::ws::WsConnector) {
         Some(c) => c.as_str().unwrap().to_string(),
         None => return Some(String::from("")),
       };
-      
+
       Some(css)
     } else {
       None

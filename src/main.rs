@@ -115,7 +115,7 @@ fn main() {
   }
 }
 
-fn show_notification(summary: &str, body: &str) {
+fn _show_notification(summary: &str, body: &str) {
   let n = notify_rust::Notification::new()
     .summary(summary)
     .body(body)

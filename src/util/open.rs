@@ -13,7 +13,7 @@ pub fn open_folder(path: PathBuf) -> Result<(), Box<dyn std::error::Error>> {
   Ok(())
 }
 
-pub fn open_scheme(scheme: String) -> Result<(), Box<dyn std::error::Error>> {
+pub fn _open_scheme(scheme: String) -> Result<(), Box<dyn std::error::Error>> {
   #[cfg(target_os = "windows")]
   Command::new("start").arg(scheme).spawn()?;
 

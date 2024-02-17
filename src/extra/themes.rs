@@ -1,5 +1,5 @@
-use std::fs;
 use crate::util::paths::get_theme_dir;
+use std::fs;
 
 pub fn get_theme(name: String) -> Result<String, String> {
   let theme_file = get_theme_dir().join(name);
