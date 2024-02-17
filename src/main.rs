@@ -56,7 +56,7 @@ fn main() {
     webui_set_profile(
       win.id,
       "Flooed".as_ptr() as *const i8,
-      path_cstr.as_ptr() as *const i8,
+      path_cstr.as_ptr(),
     );
   }
 
