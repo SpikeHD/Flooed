@@ -15,14 +15,18 @@ pub fn register_plugin_commands(ws: &mut super::util::ws::WsConnector) {
     None
   });
 
-  register_command!(ws, get_plugins, Box::new(|_| {
-    let plugins = plugins::get_plugin_list();
-    Some(
-      serde_json::to_value(plugins)
-        .unwrap_or_default()
-        .to_string(),
-    )
-  }));
+  register_command!(
+    ws,
+    get_plugins,
+    Box::new(|_| {
+      let plugins = plugins::get_plugin_list();
+      Some(
+        serde_json::to_value(plugins)
+          .unwrap_or_default()
+          .to_string(),
+      )
+    })
+  );
 
   register_command!(ws, toggle_plugin, |data: Option<Value>| {
     let name = data
@@ -54,11 +58,11 @@ pub fn register_client_mod_commands(ws: &mut super::util::ws::WsConnector) {
   });
 
   register_command!(ws, load_client_mods_js, move |_| {
-      Some((*client_mod_js).clone())
+    Some((*client_mod_js).clone())
   });
 
   register_command!(ws, load_client_mods_css, move |_| {
-      Some((*client_mod_css).clone())
+    Some((*client_mod_css).clone())
   });
 }
 

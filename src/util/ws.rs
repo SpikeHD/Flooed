@@ -2,7 +2,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use simple_websockets::{self, Event, Message, Responder};
 use std::{
-  collections::HashMap, sync::{Arc, Mutex}
+  collections::HashMap,
+  sync::{Arc, Mutex},
 };
 
 use super::logger;
@@ -81,7 +82,11 @@ impl WsConnector {
                 };
 
                 if commands.contains_key(&command.command) {
-                  let callback = commands.get(&command.command).expect("Command not found").lock().unwrap();
+                  let callback = commands
+                    .get(&command.command)
+                    .expect("Command not found")
+                    .lock()
+                    .unwrap();
                   let result = callback(command.data.clone()).unwrap_or_default();
 
                   let resp_command = Command {
@@ -111,6 +116,10 @@ impl WsConnector {
   }
 
   pub fn register_command(&mut self, command: &str, callback: CallbackFn) {
-    self.commands.lock().unwrap().insert(command.to_string(), callback);
+    self
+      .commands
+      .lock()
+      .unwrap()
+      .insert(command.to_string(), callback);
   }
 }
