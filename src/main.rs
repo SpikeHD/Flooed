@@ -53,11 +53,7 @@ fn main() {
     )
     .expect("Failed to convert profile dir to CString");
 
-    webui_set_profile(
-      win.id,
-      "Flooed".as_ptr() as *const i8,
-      path_cstr.as_ptr(),
-    );
+    webui_set_profile(win.id, "Flooed".as_ptr() as *const i8, path_cstr.as_ptr());
   }
 
   let client = match config.client_type.unwrap_or("default".to_string()).as_str() {
