@@ -151,7 +151,7 @@ pub fn get_theme_dir() -> std::path::PathBuf {
   theme_dir
 }
 
-pub fn get_profile_dir(browser: usize) -> PathBuf {
+pub fn get_profile_dir() -> PathBuf {
   let current_exe = std::env::current_exe().unwrap_or_default();
 
   if config_is_local() {
@@ -159,8 +159,7 @@ pub fn get_profile_dir(browser: usize) -> PathBuf {
     return current_exe
       .parent()
       .unwrap()
-      .join("profile")
-      .join(format!("{}", browser));
+      .join("profile");
   }
 
   #[cfg(target_os = "windows")]
@@ -172,7 +171,6 @@ pub fn get_profile_dir(browser: usize) -> PathBuf {
   appdata
     .join("flooed")
     .join("profile")
-    .join(format!("{}", browser))
 }
 
 pub fn custom_detectables_path() -> PathBuf {

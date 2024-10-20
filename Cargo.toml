@@ -9,14 +9,14 @@ strip = "debuginfo"
 
 [dependencies]
 chrono = { version = "0.4.34", no-default-features = true }
+crowser = "0.4.0"
+dialog = "0.3.0"
 dirs = "5.0.1"
 notify-rust = { version = "4.10.0", no-default-features = true }
 phf = { version = "0.11.2", features = [ "macros" ] }
 reqwest = { version = "0.11.24", features = [ "blocking" ] }
-rsrpc = { git = "https://github.com/SpikeHD/rsRPC.git", branch = "0.11.0"}
+rsrpc = { git = "https://github.com/SpikeHD/rsRPC.git", tag = "v0.16.4"}
 serde = { version = "1.0.196", features = [ "derive" ] }
 serde_json = "1.0.113"
-simple-websockets = "0.1.6"
 sysinfo = "0.30.5"
-webui-rs = { git = "https://github.com/SpikeHD/rust-webui", branch = "ext" }
 window_titles = { git = "https://github.com/SpikeHD/window_titles.git" }

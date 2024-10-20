@@ -1,8 +1,5 @@
 class FlooedApi {
-  ws = null;
   version = null;
-  commandsWaiting = {};
-  commandIdx = 0;
   shouldShowUnreadBadge = false;
 
   util = {
@@ -26,50 +23,10 @@ class FlooedApi {
     applyNotificationCount: () => {}
   }
 
-  constructor() {
-    this.ws = new WebSocket("ws://127.0.0.1:10102");
-
-    this.ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        console.log('[Flooed] Received message: ', data)
-  
-        if (data.command === 'response') {
-          if (this.commandsWaiting[data.id]) {
-            try {
-              // For compat reasons, config must stay a string
-              if (!JSON.parse(data.data).client_type) {
-                data.data = JSON.parse(data.data)
-              }
-            } catch (e) {}
-
-            this.commandsWaiting[data.id](data.data);
-            delete this.commandsWaiting[data.id];
-          }
-        }
-      } catch (e) {
-        console.error('[Flooed] Command failed: ', e)
-      }
-    }
-  }
+  constructor() {}
 
   async invoke(command, data) {
-    // Ensure we wait for WS to be open
-    while (this.ws.readyState !== WebSocket.OPEN) {
-      console.log('[Flooed] Waiting for WS to be open...')
-      await new Promise(setTimeout);
-    }
-
-    const idx = this.commandIdx++
-
-    console.log('[Flooed] Sending command: ', command)
-    
-    this.ws.send(JSON.stringify({ command, data, id: idx  }));
-
-    // Wait for response
-    return await new Promise((resolve) => {
-      this.commandsWaiting[idx] = resolve;
-    });
+    return window.__CROWSER.ipc.invoke(command, data)
   }
 }
 
@@ -113,14 +70,14 @@ async function init() {
   console.log('[Flooed] Injecting...')
 
   // Then we define window.Flooed
-  scriptTagExec(`
+  eval(`
   ${FlooedApi.toString()}
   ;(${init.toString()})()
   `)
 
   // Recreate localStorage
   console.log('[Create LocalStorage] Injecting...')
-  scriptTagExec(`
+  eval(`
   const iframe = document.createElement('iframe')
 
   // Wait for document.head to exist, then append the iframe
@@ -143,11 +100,3 @@ async function init() {
 
   await ensurePlugins();
 })()
-
-async function scriptTagExec(script) {
-  const scriptTag = document.createElement("script");
-  scriptTag.textContent = script;
-
-  while (!document.head) await new Promise(setTimeout);
-  document.head.append(scriptTag);
-}

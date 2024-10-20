@@ -11,14 +11,11 @@ mod util;
 use std::fs;
 
 use config::get_config;
-use extra::{register_client_mod_commands, register_plugin_commands, register_theme_commands};
-use serde_json::Value;
+use crowser::{RemoteConfig, Window, WindowIpc};
+use dialog::DialogBox;
+use util::logger::log;
 use util::process::process_already_exists;
-use util::register_path_commands;
-use util::ws::WsConnector;
 use util::{logger, paths::get_profile_dir};
-//use webui_rs::webui::bindgen::webui_get_best_browser;
-use webui_rs::webui::{bindgen::webui_set_profile, wait, WebUIBrowser, Window};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -31,12 +28,9 @@ fn main() {
   }
 
   let config = get_config();
-  let mut win = Window::new();
-  let browser = WebUIBrowser::ChromiumBased;
-  //let browser = unsafe { WebUIBrowser::from_usize(webui_get_best_browser(win.id)) };
 
   // Ensure profile dir exists
-  let profile_dir = get_profile_dir(browser.to_usize());
+  let profile_dir = get_profile_dir();
 
   if fs::metadata(&profile_dir).is_err() {
     logger::log(format!("Creating profile dir: {:?}", profile_dir));
@@ -45,30 +39,29 @@ fn main() {
 
   logger::log(format!("Profile dir: {:?}", profile_dir));
 
-  // Set the profile dir
-  unsafe {
-    let path_cstr = std::ffi::CString::new(
-      profile_dir
-        .to_str()
-        .expect("Failed to convert profile dir to string"),
-    )
-    .expect("Failed to convert profile dir to CString");
-
-    webui_set_profile(win.id, "Flooed".as_ptr() as *const i8, path_cstr.as_ptr());
-  }
-
-  let client = match config.client_type.unwrap_or("default".to_string()).as_str() {
+  let client_type = config.client_type.unwrap_or("default".to_string());
+  let client = match client_type.as_str() {
     "default" => "https://discord.com/app",
     "canary" => "https://canary.discord.com/app",
     "ptb" => "https://ptb.discord.com/app",
     _ => "https://discord.com/app",
   };
 
-  unsafe {
-    webui_rs::webui::bindgen::webui_set_port(win.id, 10100);
-  }
-
   logger::log("Starting on client: ".to_string() + client);
+
+  let win_config = RemoteConfig { url: client.to_string() };
+  let mut win = Window::new(win_config, None, profile_dir).unwrap_or_else(|e| {
+    dialog::Message::new(format!("Error creating Flooed window: {}", e))
+      .title("Error")
+      .show()
+      .unwrap();
+
+    std::process::exit(1);
+  });
+
+  win.set_initialization_script(
+    format!("{}", extra::client_mod::load_mods_js())
+  ).unwrap_or_default();
 
   // Start RPC server
   if config.rpc_server.unwrap_or(false) {
@@ -76,40 +69,13 @@ fn main() {
       extra::rpc::start_rpc_server();
     });
   }
-
-  // Get current working dir
-  let cwd = std::env::current_dir().unwrap();
-
-  if browser == WebUIBrowser::Firefox {
-    unsafe {
-      compat::firefox::move_firefox_extension();
-    }
-  } else {
-    // Append ./ext
-    let ext = cwd.join("ext").join("mv2");
-    win.add_extension(ext.to_str().unwrap());
-  }
-
-  // Start the websocket connector
-  let mut ws = WsConnector::new();
-
-  register_commands(&mut ws);
-
-  ws.start();
-
-  // Start the browser
-  win.show_browser(client, browser);
-
-  wait();
-
-  // We should be able to safely wait until the websocket server has no clients
-  loop {
-    if ws.clients.lock().unwrap().is_empty() {
-      break;
-    }
-
-    std::thread::sleep(std::time::Duration::from_millis(100));
-  }
+  
+  win.create().unwrap_or_else(|e| {
+    dialog::Message::new(format!("Error creating Flooed window: {}", e))
+      .title("Error")
+      .show()
+      .unwrap();
+  })
 }
 
 fn _show_notification(summary: &str, body: &str) {
@@ -127,32 +93,6 @@ fn _show_notification(summary: &str, body: &str) {
   }
 }
 
-fn register_commands(ws: &mut WsConnector) {
-  register_command!(ws, get_version, |_| Some(VERSION.to_string()));
-  register_command!(ws, read_config_file, |_| Some(config::read_config_file()));
-  register_command!(ws, write_config_file, |data: Option<Value>| {
-    if let Some(data) = data {
-      let contents = match data.get("contents") {
-        Some(c) => c.as_str().unwrap().to_string(),
-        None => return Some(String::from("false")),
-      };
-      config::write_config_file(contents);
-      return Some(String::from("true"));
-    }
+fn register_commands(ipc: &WindowIpc) {
 
-    Some(String::from("false"))
-  });
-
-  register_command!(ws, relaunch, |_| {
-    std::process::Command::new(std::env::current_exe().unwrap())
-      .spawn()
-      .expect("Failed to relaunch");
-
-    std::process::exit(0);
-  });
-
-  register_plugin_commands(ws);
-  register_client_mod_commands(ws);
-  register_theme_commands(ws);
-  register_path_commands(ws);
 }

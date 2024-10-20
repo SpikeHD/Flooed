@@ -11,9 +11,13 @@ pub struct ClientMod {
 }
 
 pub static CLIENT_MODS: phf::Map<&'static str, ClientMod> = phf_map! {
+  "Shelter" => ClientMod {
+    script: "https://raw.githubusercontent.com/uwu/shelter-builds/main/shelter.js",
+    styles: "https://raw.githubusercontent.com/uwu/shelter-builds/main/shelter.css",
+  },
   "Vencord" => ClientMod {
-      script: "https://github.com/Vendicated/Vencord/releases/download/devbuild/browser.js",
-      styles: "https://github.com/Vendicated/Vencord/releases/download/devbuild/browser.css",
+    script: "https://github.com/Vendicated/Vencord/releases/download/devbuild/browser.js",
+    styles: "https://github.com/Vendicated/Vencord/releases/download/devbuild/browser.css",
   },
 };
 
